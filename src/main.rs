@@ -1,8 +1,8 @@
 use tsp_parser::TspParser;
 
 pub const K: usize = 1000;
-pub const FILE: &'static str = "test_files/fl1400.tsp";
-// pub const FILE: &'static str = "test_files/berlin52.tsp";
+// pub const FILE: &'static str = "test_files/fl1400.tsp";
+pub const FILE: &'static str = "test_files/berlin52.tsp";
 
 fn main() {
     println!("File: {}", FILE);
