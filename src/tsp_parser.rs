@@ -130,30 +130,62 @@ impl Tsp {
     }
 
     pub fn nearest_neighbour_route(&self) -> Vec<usize> {
-        let mut route = Vec::with_capacity(self.dimension);
-        let mut visited = vec![false; self.dimension];
-
         let first_vertex = thread_rng().gen_range(0..self.dimension);
 
-        route.push(first_vertex);
-        visited[first_vertex] = true;
+        self.nearest_neighbour_inner(first_vertex)
+    }
 
-        let mut curr_vertex = first_vertex;
+    fn nearest_neighbour_inner(&self, starting_vertex: usize) -> Vec<usize> {
+        assert!(starting_vertex < self.dimension, "Vertex bigger than dimension");
 
-        for _ in 1..self.dimension {
-            let (next_vertex, _) = self.edges[curr_vertex]
-                .iter()
-                .enumerate()
-                .filter(|(i, _)| !visited[*i])
-                .min_by(|(_, w1), (_, w2)| w1.cmp(w2))
-                .expect("has to exist");
+        let mut route = vec![0; self.dimension];
+        let mut visited = vec![false; self.dimension];
+
+        route[0] = starting_vertex;
+        visited[starting_vertex] = true;
+
+        let mut curr_vertex = starting_vertex;
+
+        for i in 1..self.dimension {
+            let mut min_len = u32::MAX;
+            let mut next_vertex = 0;
+
+            for i in 0..self.dimension {
+                if visited[i] {
+                    continue;
+                }
+
+                let curr_len = self.edges[curr_vertex][i];
+
+                if curr_len < min_len {
+                    min_len = curr_len;
+                    next_vertex = i;
+                }
+            }
 
             visited[next_vertex] = true;
-            route.push(next_vertex);
+            route[i] = next_vertex;
             curr_vertex = next_vertex;
         }
 
         route
+    }
+
+    pub fn nearest_neighbour_optimized_route(&self) -> Vec<usize> {
+        let mut best_route = None;
+        let mut best_route_len = None;
+
+        for i in 0..self.dimension {
+            let route = self.nearest_neighbour_inner(i);
+            let route_len = self.get_route_len(&route).expect("has to be valid route");
+
+            if (best_route.is_none() && best_route_len.is_none()) || route_len < best_route_len.unwrap() {
+                best_route = Some(route);
+                best_route_len = Some(route_len);
+            }
+        }
+
+        best_route.expect("has to be valid route")
     }
 
     fn check_dimension(file_lines: &mut Lines) -> Result<usize, TspParsingError> {
@@ -336,7 +368,16 @@ mod tests {
     fn nearest_neighbour_works() {
         let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse test file");
         let route = tsp.nearest_neighbour_route();
-        let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
+        let route_len = tsp.get_route_len(&route).expect("Has to be valid route.");
+
+        assert!(route_len > 0);
+    }
+
+    #[test]
+    fn nearest_neighbour_optimized_works() {
+        let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse test file");
+        let route = tsp.nearest_neighbour_optimized_route();
+        let route_len = tsp.get_route_len(&route).expect("Has to be valid route.");
 
         assert!(route_len > 0);
     }
