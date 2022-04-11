@@ -114,15 +114,46 @@ impl Tsp {
             let mut route_clone = route.clone();
             route_clone.shuffle(&mut rng);
 
-            let route_clone_len = self.get_route_len(&route_clone).expect("has to be valid route");
+            let route_clone_len = self
+                .get_route_len(&route_clone)
+                .expect("has to be valid route");
 
-            if (best_route.is_none() && best_route_len.is_none()) || route_clone_len < best_route_len.unwrap() {
+            if (best_route.is_none() && best_route_len.is_none())
+                || route_clone_len < best_route_len.unwrap()
+            {
                 best_route = Some(route_clone);
                 best_route_len = Some(route_clone_len);
             }
         }
 
         best_route.expect("there has to be some route")
+    }
+
+    pub fn nearest_neighbour_route(&self) -> Vec<usize> {
+        let mut route = Vec::with_capacity(self.dimension);
+        let mut visited = vec![false; self.dimension];
+
+        let first_vertex = thread_rng().gen_range(0..self.dimension);
+
+        route.push(first_vertex);
+        visited[first_vertex] = true;
+
+        let mut curr_vertex = first_vertex;
+
+        for _ in 1..self.dimension {
+            let (next_vertex, _) = self.edges[curr_vertex]
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| !visited[*i])
+                .min_by(|(_, w1), (_, w2)| w1.cmp(w2))
+                .expect("has to exist");
+
+            visited[next_vertex] = true;
+            route.push(next_vertex);
+            curr_vertex = next_vertex;
+        }
+
+        route
     }
 
     fn check_dimension(file_lines: &mut Lines) -> Result<usize, TspParsingError> {
@@ -296,6 +327,15 @@ mod tests {
     fn krandom_works() {
         let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse test file");
         let route = tsp.krandom_route(10);
+        let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
+
+        assert!(route_len > 0);
+    }
+
+    #[test]
+    fn nearest_neighbour_works() {
+        let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse test file");
+        let route = tsp.nearest_neighbour_route();
         let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
 
         assert!(route_len > 0);
