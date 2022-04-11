@@ -21,8 +21,8 @@ impl Euc2dTspParser {
     fn parse_line_into_coords(line: &str) -> Result<(i32, i32), TspParsingError> {
         let mut line = line.split_whitespace();
 
-        let x = line.nth(1).ok_or(TspParsingError::NoData)?;
-        let y = line.next().ok_or(TspParsingError::NoData)?;
+        let x = line.nth(1).ok_or(TspParsingError::NotEnoughData)?;
+        let y = line.next().ok_or(TspParsingError::NotEnoughData)?;
 
         let x: f64 = x.parse().map_err(|_| TspParsingError::WeightNotANumber)?;
         let y: f64 = y.parse().map_err(|_| TspParsingError::WeightNotANumber)?;

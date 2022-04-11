@@ -8,7 +8,7 @@ impl TspParser for FullMatrixTspParser {
     fn parse(file_lines: &mut Lines, dimension: usize) -> Result<Vec<Vec<u32>>, TspParsingError> {
         let mut edges = Vec::new();
 
-        let mut curr_line = file_lines.next().ok_or(TspParsingError::NoData)?;
+        let mut curr_line = file_lines.next().ok_or(TspParsingError::NotEnoughData)?;
 
         let mut line_weights = curr_line.split_whitespace();
 
@@ -28,7 +28,7 @@ impl TspParser for FullMatrixTspParser {
                         edge_counter += 1;
                     }
                     None => {
-                        curr_line = file_lines.next().ok_or(TspParsingError::NoData)?;
+                        curr_line = file_lines.next().ok_or(TspParsingError::NotEnoughData)?;
                         line_weights = curr_line.split_whitespace();
                     }
                 }
