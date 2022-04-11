@@ -1,10 +1,10 @@
 use std::str::Lines;
 
-use crate::tsp_parser::{TspParser, TspParsingError};
+use crate::tsp_parser::{VariantParser, TspParsingError};
 
 pub struct LowerDiagRowTspParser;
 
-impl TspParser for LowerDiagRowTspParser {
+impl VariantParser for LowerDiagRowTspParser {
     fn parse(file_lines: &mut Lines, dimension: usize) -> Result<Vec<Vec<u32>>, TspParsingError> {
         let data_lines = file_lines.filter(|line| !(line == &"EOF"));
 

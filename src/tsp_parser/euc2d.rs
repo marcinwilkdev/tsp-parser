@@ -1,10 +1,10 @@
 use std::str::Lines;
 
-use crate::tsp_parser::{TspParser, TspParsingError};
+use crate::tsp_parser::{VariantParser, TspParsingError};
 
 pub struct Euc2dTspParser;
 
-impl TspParser for Euc2dTspParser {
+impl VariantParser for Euc2dTspParser {
     fn parse(file_lines: &mut Lines, dimension: usize) -> Result<Vec<Vec<u32>>, TspParsingError> {
         let coords: Result<Vec<(i32, i32)>, TspParsingError> = file_lines
             .take(dimension)

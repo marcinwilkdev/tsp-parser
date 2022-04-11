@@ -1,10 +1,10 @@
 use std::str::Lines;
 
-use crate::tsp_parser::{TspParser, TspParsingError};
+use crate::tsp_parser::{VariantParser, TspParsingError};
 
 pub struct FullMatrixTspParser;
 
-impl TspParser for FullMatrixTspParser {
+impl VariantParser for FullMatrixTspParser {
     fn parse(file_lines: &mut Lines, dimension: usize) -> Result<Vec<Vec<u32>>, TspParsingError> {
         let mut edges = Vec::new();
 
