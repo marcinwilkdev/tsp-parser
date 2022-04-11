@@ -1,5 +1,7 @@
 use std::str::Lines;
 
+use rand::prelude::*;
+
 mod euc2d;
 mod full_matrix;
 mod lower_diag_row;
@@ -32,6 +34,12 @@ pub enum TspParsingError {
     WeightNotANumber,
 }
 
+#[derive(Debug)]
+pub enum TspRouteError {
+    TooShort,
+    NotPermutation,
+}
+
 pub trait TspParser {
     fn parse(file_lines: &mut Lines, dimension: usize) -> Result<Vec<Vec<u32>>, TspParsingError>;
 }
@@ -62,9 +70,9 @@ impl Tsp {
         Ok(Tsp { edges, dimension })
     }
 
-    pub fn get_route_len(&self, route: &[usize]) -> u32 {
+    pub fn get_route_len(&self, route: &[usize]) -> Result<u32, TspRouteError> {
         if route.len() != self.dimension {
-            panic!("Route len doesn't match dimension.");
+            return Err(TspRouteError::TooShort);
         }
 
         let mut route_clone = route.to_vec();
@@ -72,28 +80,49 @@ impl Tsp {
         route_clone.sort_unstable();
 
         if route_clone != (0..self.dimension).collect::<Vec<_>>() {
-            panic!("Route isn't valid permutation");
+            return Err(TspRouteError::NotPermutation);
         }
 
         let mut route_len = 0;
 
-        for i in 0..self.dimension-1 {
+        for i in 0..self.dimension - 1 {
             let first_vertex = route[i];
-            let second_vertex = route[i+1];
+            let second_vertex = route[i + 1];
 
             route_len += self.edges[first_vertex][second_vertex]
         }
 
         let first_vertex = route[0];
-        let last_vertex = route[route.len()-1];
+        let last_vertex = route[route.len() - 1];
 
         route_len += self.edges[first_vertex][last_vertex];
 
-        route_len
+        Ok(route_len)
     }
 
     pub fn get_edges(self) -> Vec<Vec<u32>> {
         self.edges
+    }
+
+    pub fn krandom_route(&self, k: usize) -> Vec<usize> {
+        let route = (0..self.dimension).collect::<Vec<_>>();
+        let mut best_route = None;
+        let mut best_route_len = None;
+        let mut rng = rand_pcg::Pcg64Mcg::new(thread_rng().gen());
+
+        for _ in 0..k {
+            let mut route_clone = route.clone();
+            route_clone.shuffle(&mut rng);
+
+            let route_clone_len = self.get_route_len(&route_clone).expect("has to be valid route");
+
+            if (best_route.is_none() && best_route_len.is_none()) || route_clone_len < best_route_len.unwrap() {
+                best_route = Some(route_clone);
+                best_route_len = Some(route_clone_len);
+            }
+        }
+
+        best_route.expect("there has to be some route")
     }
 
     fn check_dimension(file_lines: &mut Lines) -> Result<usize, TspParsingError> {
@@ -238,26 +267,37 @@ mod tests {
         let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse file");
         let route = [0, 1, 2];
 
-        let route_len = tsp.get_route_len(&route);
+        let route_len = tsp.get_route_len(&route).expect("route should be valid");
 
         assert_eq!(8, route_len);
     }
 
     #[test]
-    #[should_panic]
     fn route_len_too_short() {
         let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse file");
         let route = [0, 1];
 
         let route_len = tsp.get_route_len(&route);
+
+        assert!(route_len.is_err());
     }
 
     #[test]
-    #[should_panic]
     fn route_len_not_permutation() {
         let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse file");
         let route = [0, 1, 1];
 
         let route_len = tsp.get_route_len(&route);
+
+        assert!(route_len.is_err());
+    }
+
+    #[test]
+    fn krandom_works() {
+        let tsp = Tsp::from_file("full_matrix").expect("Couldn't parse test file");
+        let route = tsp.krandom_route(10);
+        let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
+
+        assert!(route_len > 0);
     }
 }
