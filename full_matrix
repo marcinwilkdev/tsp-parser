@@ -1,0 +1,12 @@
+NAME:  full_matrix
+TYPE: ATSP
+COMMENT: full_matrix file for testing
+DIMENSION:  3
+EDGE_WEIGHT_TYPE: EXPLICIT
+EDGE_WEIGHT_FORMAT: FULL_MATRIX 
+EDGE_WEIGHT_SECTION
+ 9999    2    3
+    2 9999    3
+    3    3 9999
+EOF
+
