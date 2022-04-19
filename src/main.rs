@@ -1,4 +1,4 @@
-use tsp_parser::TspParser;
+use tsp_parser::*;
 
 pub const K: usize = 1000;
 // pub const FILE: &'static str = "test_files/fl1400.tsp";
@@ -15,7 +15,7 @@ fn main() {
 
     let start = std::time::Instant::now();
 
-    let route = tsp.k_random_route(K);
+    let route = KRandom::new(K).get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
 
     println!("K-random (k = {}) route len: {}", K, route_len);
@@ -23,7 +23,7 @@ fn main() {
 
     let start = std::time::Instant::now();
 
-    let route = tsp.nearest_neighbour_route();
+    let route = NearestNeighbour::new().get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
 
     println!("Nearest neighbour route len: {}", route_len);
@@ -31,7 +31,7 @@ fn main() {
 
     let start = std::time::Instant::now();
 
-    let route = tsp.nearest_neighbour_optimized_route();
+    let route = NearestNeighbourOptimized::new().get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
 
     println!("Nearest neighbour optimized route len: {}", route_len);
@@ -39,7 +39,8 @@ fn main() {
 
     let start = std::time::Instant::now();
 
-    let route = tsp.two_opt();
+    let heuristic = NearestNeighbourOptimized::new();
+    let route = TwoOpt::new(Box::new(heuristic)).get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
 
     println!("Two opt route len: {}", route_len);

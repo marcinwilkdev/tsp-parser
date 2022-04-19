@@ -1,4 +1,5 @@
 use super::*;
+use crate::*;
 
 use std::fs::File;
 
@@ -116,7 +117,7 @@ fn route_len_not_permutation() {
 #[test]
 fn krandom_works() {
     let tsp = TspParser::from_file("full_matrix").expect("Couldn't parse test file");
-    let route = tsp.k_random_route(10);
+    let route = KRandom::new(10).get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route");
 
     assert!(route_len > 0);
@@ -125,7 +126,7 @@ fn krandom_works() {
 #[test]
 fn nearest_neighbour_works() {
     let tsp = TspParser::from_file("full_matrix").expect("Couldn't parse test file");
-    let route = tsp.nearest_neighbour_route();
+    let route = NearestNeighbour::new().get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route.");
 
     assert!(route_len > 0);
@@ -134,7 +135,7 @@ fn nearest_neighbour_works() {
 #[test]
 fn nearest_neighbour_optimized_works() {
     let tsp = TspParser::from_file("full_matrix").expect("Couldn't parse test file");
-    let route = tsp.nearest_neighbour_optimized_route();
+    let route = NearestNeighbourOptimized::new().get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route.");
 
     assert!(route_len > 0);
@@ -143,7 +144,8 @@ fn nearest_neighbour_optimized_works() {
 #[test]
 fn two_opt_works() {
     let tsp = TspParser::from_file("full_matrix").expect("Couldn't parse test file");
-    let route = tsp.two_opt();
+    let heuristic = NearestNeighbourOptimized::new();
+    let route = TwoOpt::new(Box::new(heuristic)).get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route.");
 
     assert!(route_len > 0);
