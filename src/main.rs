@@ -35,6 +35,7 @@ fn main() {
     println!("Nearest neighbour optimized route len: {}", route_len);
     println!("Time to calculate nearest neighbour opt: {:?}\n", duration);
 
+    // at this moment only invert neighbourhood is turned on
     let HeuristicBench {
         route: _,
         route_len,
