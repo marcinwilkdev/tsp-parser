@@ -1,7 +1,7 @@
 use tsp_parser::*;
 
 pub const K: usize = 1000;
-pub const FILE: &'static str = "test_files/berlin52.tsp";
+pub const FILE: &'static str = "test_files/d1655.tsp";
 
 fn main() {
     println!("File: {}", FILE);
@@ -36,6 +36,7 @@ fn main() {
     println!("Time to calculate nearest neighbour opt: {:?}\n", duration);
 
     // at this moment only invert neighbourhood is turned on
+    // works properly only for symetric tsp
     let HeuristicBench {
         route: _,
         route_len,

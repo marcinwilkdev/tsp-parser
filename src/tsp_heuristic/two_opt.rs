@@ -110,6 +110,7 @@ where
     fn get_route(&self, tsp: &Tsp) -> Vec<usize> {
         let initial_route = self.initial_heuristic.get_route(tsp);
         best_neighbourhood_invert(tsp, initial_route)
+        // best_neighbourhood_generic(tsp, initial_route, neighbourhood::invert)
     }
 }
 
