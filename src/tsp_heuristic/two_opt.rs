@@ -1,11 +1,17 @@
-use crate::{Tsp, TspHeuristic};
+use crate::{neighbourhood, Tsp, TspHeuristic};
 
-pub struct TwoOpt {
-    initial_heuristic: Box<dyn TspHeuristic>,
+pub struct TwoOpt<H>
+where
+    H: TspHeuristic,
+{
+    initial_heuristic: H,
 }
 
-impl TwoOpt {
-    pub fn new(initial_heuristic: Box<dyn TspHeuristic>) -> TwoOpt {
+impl<H> TwoOpt<H>
+where
+    H: TspHeuristic,
+{
+    pub fn new(initial_heuristic: H) -> Self {
         TwoOpt { initial_heuristic }
     }
 }
@@ -57,22 +63,12 @@ where
     best_route
 }
 
-fn invert(route: &mut [usize]) {
-    let route_len = route.len();
-    let half_route_len = route_len / 2;
-
-    for i in 0..=half_route_len {
-        route.swap(i, route_len - i - 1);
-    }
-}
-
-// fn swap(route: &mut [usize]) {
-//     route.swap(0, route.len() - 1)
-// }
-
-impl TspHeuristic for TwoOpt {
+impl<H> TspHeuristic for TwoOpt<H>
+where
+    H: TspHeuristic,
+{
     fn get_route(&self, tsp: &Tsp) -> Vec<usize> {
         let initial_route = self.initial_heuristic.get_route(tsp);
-        best_neighbourhood(tsp, initial_route, invert)
+        best_neighbourhood(tsp, initial_route, neighbourhood::invert)
     }
 }

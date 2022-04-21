@@ -63,7 +63,10 @@ fn check_lower_diag_row_dimension_works() {
 #[test]
 fn lower_diag_row_works() {
     let tsp = TspParser::from_file("lower_diag_row").expect("Couldn't parse file");
-    assert_eq!(vec![vec![0, 2, 3], vec![2, 0, 3], vec![3, 3, 0]], tsp.get_edges());
+    assert_eq!(
+        vec![vec![0, 2, 3], vec![2, 0, 3], vec![3, 3, 0]],
+        tsp.get_edges()
+    );
 }
 
 #[test]
@@ -144,8 +147,7 @@ fn nearest_neighbour_optimized_works() {
 #[test]
 fn two_opt_works() {
     let tsp = TspParser::from_file("full_matrix").expect("Couldn't parse test file");
-    let heuristic = NearestNeighbourOptimized::new();
-    let route = TwoOpt::new(Box::new(heuristic)).get_route(&tsp);
+    let route = TwoOpt::new(NearestNeighbourOptimized::new()).get_route(&tsp);
     let route_len = tsp.get_route_len(&route).expect("Has to be valid route.");
 
     assert!(route_len > 0);
