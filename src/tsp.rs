@@ -35,6 +35,29 @@ impl Tsp {
         Ok(route_len)
     }
 
+    pub fn get_inverted_route_len(
+        &self,
+        route: &[usize],
+        mut route_len: u32,
+        i: usize,
+        j: usize,
+    ) -> u32 {
+        if i == 0 && j == self.dimension - 1 {
+            return route_len;
+        }
+
+        let before_index = if i == 0 { self.dimension - 1 } else { i - 1 };
+        let after_index = if j == self.dimension - 1 { 0 } else { j + 1 };
+
+        route_len += self.edges[route[i]][route[after_index]];
+        route_len += self.edges[route[before_index]][route[j]];
+
+        route_len -= self.edges[route[before_index]][route[i]];
+        route_len -= self.edges[route[j]][route[after_index]];
+
+        route_len
+    }
+
     fn check_route_valid(&self, route: &[usize]) -> Result<(), TspRouteError> {
         if route.len() != self.dimension {
             return Err(TspRouteError::TooShort);
