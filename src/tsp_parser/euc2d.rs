@@ -27,7 +27,7 @@ impl Euc2dTspParser {
         let x: f64 = x.parse().map_err(|_| TspParsingError::WeightNotANumber)?;
         let y: f64 = y.parse().map_err(|_| TspParsingError::WeightNotANumber)?;
 
-        Ok((x as i32, y as i32))
+        Ok((x.round() as i32, y.round() as i32))
     }
 
     fn parse_distances(coords: &[(i32, i32)]) -> Vec<Vec<u32>> {
