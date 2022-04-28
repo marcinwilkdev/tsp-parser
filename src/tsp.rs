@@ -78,6 +78,38 @@ impl Tsp {
         route_len
     }
 
+    pub fn get_swap_route_len(
+        &self,
+        route: &[usize],
+        mut route_len: u32,
+        i: usize,
+        j: usize,
+    ) -> u32 {
+        if i == 0 && j == self.dimension - 1 {
+            return route_len;
+        }
+
+        let before_i_index = if i == 0 { self.dimension - 1 } else { i - 1 };
+        let after_i_index = i + 1;
+        let before_j_index = j - 1;
+        let after_j_index = if j == self.dimension - 1 { 0 } else { j + 1 };
+
+        // [1, 2, 3, 4, 5]
+        // [1, i, 3, j, 5]
+
+        route_len -= self.edges[route[before_i_index]][route[i]];
+        route_len -= self.edges[route[i]][route[after_i_index]];
+        route_len -= self.edges[route[before_j_index]][route[j]];
+        route_len -= self.edges[route[j]][route[after_j_index]];
+
+        route_len += self.edges[route[before_i_index]][route[j]];
+        route_len += self.edges[route[i]][route[after_j_index]];
+        route_len += self.edges[route[before_j_index]][route[i]];
+        route_len += self.edges[route[j]][route[after_i_index]];
+
+        route_len
+    }
+
     // ==
 
     pub fn get_inverted_asymmetric_route_len(
@@ -164,7 +196,7 @@ impl Tsp {
 #[cfg(test)]
 mod tests {
     use crate::TspParser;
-    use crate::neighbourhood::invert;
+    use crate::neighbourhood::{invert, swap};
 
     #[test]
     fn different_route_lens() {
@@ -183,5 +215,24 @@ mod tests {
         let inverted_route_len = tsp.get_route_len(&route).expect("has to be some");
 
         assert_eq!(inverted_route_len, other_route_len);
+    }
+
+    #[test]
+    fn different_route_lens_swap() {
+        let tsp = TspParser::from_file("test_files/ft70.atsp").expect("test file doesnt exist");
+
+        let mut route = (0..tsp.dimension).collect::<Vec<_>>();
+
+        let route_len = tsp.get_route_len(&route).expect("has to be some");
+
+        let (l, r) = (10, 40);
+
+        let other_route_len = tsp.get_swap_route_len(&route, route_len, l, r);
+
+        swap(&mut route[l..=r]);
+
+        let swapped_route_len = tsp.get_route_len(&route).expect("has to be some");
+
+        assert_eq!(swapped_route_len, other_route_len);
     }
 }
