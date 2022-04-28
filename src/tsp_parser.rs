@@ -1,6 +1,6 @@
 use std::str::Lines;
 
-use crate::tsp::Tsp;
+use crate::tsp::{Tsp, TspType};
 
 mod euc2d;
 mod full_matrix;
@@ -61,7 +61,10 @@ impl TspParser {
             TspFileType::Euc2d => Euc2dTspParser::parse(&mut file_lines, dimension),
         }?;
 
-        Ok(Tsp::new(edges, dimension))
+        match file_type {
+            TspFileType::FullMatrix => Ok(Tsp::new(edges, dimension, TspType::Asymmetric)),
+            _ => Ok(Tsp::new(edges, dimension, TspType::Symmetric)),
+        }
     }
 
     fn check_dimension(file_lines: &mut Lines) -> Result<usize, TspParsingError> {

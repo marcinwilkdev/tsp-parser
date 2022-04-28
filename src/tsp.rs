@@ -5,14 +5,21 @@ pub enum TspRouteError {
 }
 
 #[derive(Debug)]
+pub enum TspType {
+    Symmetric,
+    Asymmetric,
+}
+
+#[derive(Debug)]
 pub struct Tsp {
     edges: Vec<Vec<u32>>,
     dimension: usize,
+    tsp_type: TspType,
 }
 
 impl Tsp {
-    pub fn new(edges: Vec<Vec<u32>>, dimension: usize) -> Tsp {
-        Tsp { edges, dimension }
+    pub fn new(edges: Vec<Vec<u32>>, dimension: usize, tsp_type: TspType) -> Tsp {
+        Tsp { edges, dimension, tsp_type }
     }
 
     pub fn get_route_len(&self, route: &[usize]) -> Result<u32, TspRouteError> {
@@ -38,6 +45,19 @@ impl Tsp {
     pub fn get_inverted_route_len(
         &self,
         route: &[usize],
+        route_len: u32,
+        i: usize,
+        j: usize,
+    ) -> u32 {
+        match self.tsp_type {
+            TspType::Symmetric => self.get_inverted_symmetric_route_len(route, route_len, i, j),
+            TspType::Asymmetric => self.get_inverted_asymmetric_route_len(route, route_len, i, j),
+        }
+    }
+
+    pub fn get_inverted_symmetric_route_len(
+        &self,
+        route: &[usize],
         mut route_len: u32,
         i: usize,
         j: usize,
@@ -57,6 +77,64 @@ impl Tsp {
 
         route_len
     }
+
+    // ==
+
+    pub fn get_inverted_asymmetric_route_len(
+        &self,
+        route: &[usize],
+        mut route_len: u32,
+        i: usize,
+        j: usize,
+    ) -> u32 {
+        let before_index = if i == 0 { self.dimension - 1 } else { i - 1 };
+        let after_index = if j == self.dimension - 1 { 0 } else { j + 1 };
+
+        route_len += self.edges[route[i]][route[after_index]];
+        route_len += self.edges[route[before_index]][route[j]];
+
+        route_len -= self.edges[route[before_index]][route[i]];
+        route_len -= self.edges[route[j]][route[after_index]];
+
+        route_len -= self.get_part_route_len(&route[i..=j]);
+        route_len += self.get_inverted_part_route_len(&route[i..=j]);
+
+        route_len
+    }
+
+    fn get_part_route_len(
+        &self,
+        route: &[usize],
+    ) -> u32 {
+        let mut route_len = 0;
+
+        for i in 0..route.len() - 1 {
+            let first_vertex = route[i];
+            let second_vertex = route[i + 1];
+
+            route_len += self.edges[first_vertex][second_vertex];
+        }
+
+        route_len
+    }
+
+    fn get_inverted_part_route_len(
+        &self,
+        route: &[usize],
+    ) -> u32 {
+        let mut route_len = 0;
+
+        for i in (0..route.len() - 1).rev() {
+            let first_vertex = route[i + 1];
+            let second_vertex = route[i];
+
+            route_len += self.edges[first_vertex][second_vertex];
+        }
+
+        route_len
+    }
+
+    // ===
 
     fn check_route_valid(&self, route: &[usize]) -> Result<(), TspRouteError> {
         if route.len() != self.dimension {
@@ -80,5 +158,30 @@ impl Tsp {
 
     pub fn get_dimension(&self) -> usize {
         self.dimension
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::TspParser;
+    use crate::neighbourhood::invert;
+
+    #[test]
+    fn different_route_lens() {
+        let tsp = TspParser::from_file("test_files/ft70.atsp").expect("test file doesnt exist");
+
+        let mut route = (0..tsp.dimension).collect::<Vec<_>>();
+
+        let route_len = tsp.get_route_len(&route).expect("has to be some");
+
+        let (l, r) = (10, 40);
+
+        let other_route_len = tsp.get_inverted_route_len(&route, route_len, l, r);
+
+        invert(&mut route[l..=r]);
+
+        let inverted_route_len = tsp.get_route_len(&route).expect("has to be some");
+
+        assert_eq!(inverted_route_len, other_route_len);
     }
 }
