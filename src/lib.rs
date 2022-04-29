@@ -6,7 +6,7 @@ mod tsp_tests;
 
 pub use crate::tsp::Tsp;
 pub use crate::tsp_heuristic::*;
-pub use crate::tsp_parser::TspParser;
+pub use crate::tsp_parser::{TspParser, TspFileType};
 
 pub struct HeuristicBench {
     pub route: Vec<usize>,
