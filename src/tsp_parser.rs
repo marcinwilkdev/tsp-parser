@@ -14,7 +14,7 @@ use full_matrix::FullMatrixTspParser;
 use lower_diag_row::LowerDiagRowTspParser;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum TspFileType {
     LowerDiagRow,
     FullMatrix,
