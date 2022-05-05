@@ -94,18 +94,15 @@ impl Tsp {
         let before_j_index = j - 1;
         let after_j_index = if j == self.dimension - 1 { 0 } else { j + 1 };
 
-        // [1, 2, 3, 4, 5]
-        // [1, i, 3, j, 5]
-
+        route_len += self.edges[route[before_i_index]][route[j]];
         route_len -= self.edges[route[before_i_index]][route[i]];
         route_len -= self.edges[route[i]][route[after_i_index]];
-        route_len -= self.edges[route[before_j_index]][route[j]];
-        route_len -= self.edges[route[j]][route[after_j_index]];
-
-        route_len += self.edges[route[before_i_index]][route[j]];
         route_len += self.edges[route[i]][route[after_j_index]];
-        route_len += self.edges[route[before_j_index]][route[i]];
+
+        route_len -= self.edges[route[j]][route[after_j_index]];
         route_len += self.edges[route[j]][route[after_i_index]];
+        route_len += self.edges[route[before_j_index]][route[i]];
+        route_len -= self.edges[route[before_j_index]][route[j]];
 
         route_len
     }
