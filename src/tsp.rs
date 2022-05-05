@@ -4,13 +4,13 @@ pub enum TspRouteError {
     NotPermutation,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TspType {
     Symmetric,
     Asymmetric,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Tsp {
     edges: Vec<Vec<u32>>,
     dimension: usize,
