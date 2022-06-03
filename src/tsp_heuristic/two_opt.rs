@@ -62,7 +62,7 @@ where
     best_route
 }
 
-fn best_neighbourhood_invert(tsp: &Tsp, route: Vec<usize>) -> Vec<usize> {
+pub fn best_neighbourhood_invert(tsp: &Tsp, route: Vec<usize>) -> Vec<usize> {
     let dimension = tsp.get_dimension();
 
     let mut best_route = route;
