@@ -4,7 +4,7 @@ mod tsp_heuristic;
 mod tsp_parser;
 mod tsp_tests;
 
-pub use crate::tsp::Tsp;
+pub use crate::tsp::*;
 pub use crate::tsp_heuristic::*;
 pub use crate::tsp_parser::{TspParser, TspFileType};
 
