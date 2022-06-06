@@ -4,7 +4,7 @@ pub enum TspRouteError {
     NotPermutation,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum TspType {
     Symmetric,
     Asymmetric,
@@ -94,15 +94,15 @@ impl Tsp {
         let before_j_index = j - 1;
         let after_j_index = if j == self.dimension - 1 { 0 } else { j + 1 };
 
-        route_len += self.edges[route[before_i_index]][route[j]];
         route_len -= self.edges[route[before_i_index]][route[i]];
         route_len -= self.edges[route[i]][route[after_i_index]];
-        route_len += self.edges[route[i]][route[after_j_index]];
-
+        route_len -= self.edges[route[before_j_index]][route[j]];
         route_len -= self.edges[route[j]][route[after_j_index]];
+
+        route_len += self.edges[route[before_i_index]][route[j]];
         route_len += self.edges[route[j]][route[after_i_index]];
         route_len += self.edges[route[before_j_index]][route[i]];
-        route_len -= self.edges[route[before_j_index]][route[j]];
+        route_len += self.edges[route[i]][route[after_j_index]];
 
         route_len
     }
@@ -187,6 +187,10 @@ impl Tsp {
 
     pub fn get_dimension(&self) -> usize {
         self.dimension
+    }
+
+    pub fn get_tsp_type(&self) -> TspType {
+        self.tsp_type
     }
 }
 
