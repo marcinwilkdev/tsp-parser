@@ -41,7 +41,7 @@ impl Tsp {
         let first_vertex = route[0];
         let last_vertex = route[route.len() - 1];
 
-        route_len += self.edges[first_vertex][last_vertex];
+        route_len += self.edges[last_vertex][first_vertex];
 
         Ok(route_len)
     }
